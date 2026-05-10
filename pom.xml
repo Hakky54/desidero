@@ -41,7 +41,7 @@
         <version.sude>2.0.2</version.sude>
         <version.laleler>1.0.0</version.laleler>
 
-        <version.junit>5.14.1</version.junit>
+        <version.junit>6.0.3</version.junit>
         <version.assertj>3.27.7</version.assertj>
         <version.mockito>5.23.0</version.mockito>
         <version.logcaptor>2.12.6</version.logcaptor>

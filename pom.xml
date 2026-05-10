@@ -38,9 +38,13 @@
     </developers>
 
     <properties>
+        <version.sude>2.0.2</version.sude>
+        <version.laleler>1.0.0</version.laleler>
+
         <version.junit>5.14.1</version.junit>
         <version.assertj>3.27.7</version.assertj>
         <version.mockito>5.23.0</version.mockito>
+        <version.logcaptor>2.12.6</version.logcaptor>
 
         <version.jacoco-maven-plugin>0.8.14</version.jacoco-maven-plugin>
         <version.maven-surefire-plugin>3.5.5</version.maven-surefire-plugin>
@@ -58,6 +62,17 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>io.github.hakky54</groupId>
+            <artifactId>sude</artifactId>
+            <version>${version.sude}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.hakky54</groupId>
+            <artifactId>laleler</artifactId>
+            <version>${version.laleler}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -80,6 +95,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${version.mockito}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.hakky54</groupId>
+            <artifactId>logcaptor</artifactId>
+            <version>${version.logcaptor}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

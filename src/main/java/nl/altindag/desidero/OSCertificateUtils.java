@@ -45,7 +45,7 @@ abstract class OSCertificateUtils {
         List<Certificate> certificates = new ArrayList<>();
         try {
             for (Path path : certificatePaths) {
-                if (Files.exists(path)) {
+                if (Files.exists(path) && Files.isReadable(path)) {
                     if (Files.isRegularFile(path)) {
                         List<Certificate> certs = loadCertificate(path);
                         certificates.addAll(certs);

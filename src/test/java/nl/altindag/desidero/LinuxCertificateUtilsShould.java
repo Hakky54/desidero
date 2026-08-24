@@ -348,6 +348,8 @@ class LinuxCertificateUtilsShould {
                      return true;
                  } else if ("isRegularFile".equals(method.getName())) {
                      return true;
+                 } else if ("isReadable".equals(method.getName())) {
+                     return true;
                  } else {
                      return invocation.callRealMethod();
                  }

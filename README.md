@@ -31,12 +31,30 @@ implementation 'io.github.hakky54:desidero:1.0.0'
 3. [Support](#support)
 
 # Introduction
-Desidero is a library for handling OS Certificates
+Desidero is a library for handling OS Certificates. Supported operating systems are:
+- Linux
+- MacOS
+- Windows
+- Android
 
 # History
 Desidero project is originated from internal utilities of [Ayza](https://github.com/hakky54/ayza) project. It is extracted to a separate project to be used by other projects as well.
 
 # Usage
+```java
+import nl.altindag.desidero.OperatingSystem;
+
+import java.security.KeyStore;
+import java.util.List;
+
+public class App {
+
+    public static void main(String[] args) {
+        List<KeyStore> trustStores = OperatingSystem.get().getTrustStores();
+    }
+    
+}
+```
 
 ## Support
 

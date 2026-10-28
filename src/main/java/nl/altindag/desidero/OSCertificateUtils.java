@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +41,17 @@ abstract class OSCertificateUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(OSCertificateUtils.class);
 
     abstract List<KeyStore> getTrustStores();
+
+    /**
+     * Returns intermediate certificates available from the operating system.
+     * These certificates can be used for certificate path building
+     * but should not automatically be treated as trust anchors.
+     *
+     * @return the intermediate certificates, or an empty list if unavailable
+     */
+    List<X509Certificate> getIntermediateCertificates() {
+        return Collections.emptyList();
+    }
 
     List<Certificate> getCertificates(List<Path> certificatePaths) {
         List<Certificate> certificates = new ArrayList<>();

@@ -19,6 +19,7 @@ import nl.altindag.sude.Logger;
 import nl.altindag.sude.LoggerFactory;
 
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -82,6 +83,19 @@ public enum OperatingSystem {
                     LOGGER.warn(String.format("No system KeyStores available for [%s]", resolvedOsName));
                     return Collections.emptyList();
                 });
+    }
+
+    /**
+     * Returns intermediate certificates available from the operating system.
+     * These certificates can be used for certificate path building
+     * but must not automatically be treated as trust anchors.
+     *
+     * @return the intermediate certificates, or an empty list if unavailable
+     */
+    public List<X509Certificate> getIntermediateCertificates() {
+        return getOsCertificateUtils()
+                .map(OSCertificateUtils::getIntermediateCertificates)
+                .orElseGet(Collections::emptyList);
     }
 
     Optional<OSCertificateUtils> getOsCertificateUtils() {

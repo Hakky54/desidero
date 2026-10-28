@@ -40,6 +40,7 @@
     <properties>
         <version.sude>2.0.2</version.sude>
         <version.laleler>1.0.0</version.laleler>
+        <version.jna>5.17.0</version.jna>
 
         <version.junit>5.14.4</version.junit>
         <version.assertj>3.27.7</version.assertj>
@@ -72,6 +73,18 @@
             <groupId>io.github.hakky54</groupId>
             <artifactId>laleler</artifactId>
             <version>${version.laleler}</version>
+        </dependency>
+
+        <!-- Windows certificate store access -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${version.jna}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>${version.jna}</version>
         </dependency>
 
         <dependency>

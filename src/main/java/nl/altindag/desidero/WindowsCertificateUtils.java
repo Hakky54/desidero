@@ -16,6 +16,7 @@
 package nl.altindag.desidero;
 
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -36,6 +37,23 @@ final class WindowsCertificateUtils extends OSCertificateUtils {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(toUnmodifiableList());
+    }
+
+    /**
+     * Loads intermediate CA certificates from the Windows CA stores.
+     * These certificates are intended for certificate path building,
+     * not as trust anchors.
+     *
+     * @return the intermediate CA certificates
+     */
+    @Override
+    List<X509Certificate> getIntermediateCertificates() {
+        try {
+            return WindowsCAReader.loadCertificates();
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Failed to load Windows intermediate CA certificates", e);
+        }
     }
 
     static WindowsCertificateUtils getInstance() {

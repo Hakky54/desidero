@@ -17,6 +17,8 @@ module nl.altindag.desidero {
 
     requires nl.altindag.sude;
     requires nl.altindag.laleler;
+    requires com.sun.jna;
+    requires com.sun.jna.platform;
 
     exports nl.altindag.desidero;
 

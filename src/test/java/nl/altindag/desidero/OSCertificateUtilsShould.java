@@ -52,6 +52,16 @@ class OSCertificateUtilsShould {
     };
 
     @Test
+    void getIntermediateCertificatesReturnsEmptyByDefault() {
+        assertThat(oscertificateUtils.getIntermediateCertificates()).isEmpty();
+    }
+
+    @Test
+    void getIntermediateCertificatesReturnsEmptyOnLinux() {
+        assertThat(OperatingSystem.LINUX.getIntermediateCertificates()).isEmpty();
+    }
+
+    @Test
     void loadCertificateIgnoresInvalidFiles() throws IOException {
         Path path = IOTestUtils.copyFileToHomeDirectory("pem/", "invalid.pem");
         List<Certificate> certificates = oscertificateUtils.loadCertificate(path);

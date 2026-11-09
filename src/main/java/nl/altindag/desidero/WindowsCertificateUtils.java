@@ -15,7 +15,12 @@
  */
 package nl.altindag.desidero;
 
+import nl.altindag.sude.Logger;
+import nl.altindag.sude.LoggerFactory;
+
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -25,12 +30,15 @@ import static nl.altindag.laleler.CollectorsUtils.toUnmodifiableList;
 /**
  * @author Hakan Altindag
  */
-final class WindowsCertificateUtils extends OSCertificateUtils {
+public final class WindowsCertificateUtils extends OSCertificateUtils {
 
+    private static final Logger LOGGER  = LoggerFactory.getLogger(WindowsCertificateUtils.class);
     private static WindowsCertificateUtils INSTANCE;
 
+    private WindowsCertificateUtils() {}
+
     @Override
-    List<KeyStore> getTrustStores() {
+    public List<KeyStore> getTrustStores() {
         return Stream.of("Windows-ROOT", "Windows-ROOT-LOCALMACHINE", "Windows-ROOT-CURRENTUSER", "Windows-MY", "Windows-MY-CURRENTUSER", "Windows-MY-LOCALMACHINE")
                 .map(keystoreType -> createKeyStoreIfAvailable(keystoreType, null))
                 .filter(Optional::isPresent)
@@ -38,11 +46,34 @@ final class WindowsCertificateUtils extends OSCertificateUtils {
                 .collect(toUnmodifiableList());
     }
 
-    static WindowsCertificateUtils getInstance() {
+    public List<X509Certificate> getIntermediateCertificates() {
+        if (!isJnaAvailable()) {
+            LOGGER.debug("JNA is not on the classpath, skipping getting Windows intermediate CA certificates");
+            return Collections.emptyList();
+        }
+
+        try {
+            return WindowsCAReader.loadCertificates();
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Failed to load Windows intermediate CA certificates", e);
+        }
+    }
+
+    public static WindowsCertificateUtils getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new WindowsCertificateUtils();
         }
         return INSTANCE;
+    }
+
+    private static boolean isJnaAvailable() {
+        try {
+            Class.forName("com.sun.jna.platform.win32.Crypt32", false, WindowsCertificateUtils.class.getClassLoader());
+            return true;
+        } catch (ClassNotFoundException | LinkageError e) {
+            return false;
+        }
     }
 
 }

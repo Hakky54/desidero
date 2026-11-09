@@ -24,4 +24,11 @@ public class DesideroException extends RuntimeException {
         super(e);
     }
 
+    public DesideroException(String message, Exception e) {
+        super(message, e);
+    }
+
+    public DesideroException(String message) {
+        super(message);
+    }
 }

@@ -24,4 +24,12 @@ public class GenericIOException extends DesideroException {
         super(e);
     }
 
+    public GenericIOException(String message, Exception e) {
+        super(message, e);
+    }
+
+    public GenericIOException(String message) {
+        super(message);
+    }
+
 }

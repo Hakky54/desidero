@@ -17,7 +17,8 @@ module nl.altindag.desidero {
 
     requires transitive nl.altindag.sude;
     requires transitive nl.altindag.laleler;
+    requires static com.sun.jna;
+    requires static com.sun.jna.platform;
 
     exports nl.altindag.desidero;
-
 }

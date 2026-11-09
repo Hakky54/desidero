@@ -17,16 +17,22 @@ package nl.altindag.desidero;
 
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
@@ -40,6 +46,51 @@ class WindowsCertificateUtilsShould {
         assertThat(instance)
                 .isNotNull()
                 .hasSameHashCodeAs(WindowsCertificateUtils.getInstance());
+    }
+
+    @Test
+    void getRootCertificates() {
+        X509Certificate certificate = mock(X509Certificate.class);
+        KeyStore keyStore = mock(KeyStore.class);
+
+        try (MockedStatic<KeyStoreUtils> mockedKeyStoreUtils = mockStatic(KeyStoreUtils.class)) {
+            mockedKeyStoreUtils.when(() -> KeyStoreUtils.createKeyStore(eq("Windows-ROOT"), isNull())).thenReturn(keyStore);
+            mockedKeyStoreUtils.when(() -> KeyStoreUtils.getCertificates(keyStore)).thenReturn(Collections.singletonList(certificate));
+
+            assertThat(WindowsCertificateUtils.getInstance().getRootCertificates()).containsExactly(certificate);
+
+            ArgumentCaptor<String> keyStoreTypeCaptor = ArgumentCaptor.forClass(String.class);
+            mockedKeyStoreUtils.verify(() -> KeyStoreUtils.createKeyStore(keyStoreTypeCaptor.capture(), isNull()), times(3));
+            assertThat(keyStoreTypeCaptor.getAllValues()).containsExactlyInAnyOrder("Windows-ROOT", "Windows-ROOT-LOCALMACHINE", "Windows-ROOT-CURRENTUSER");
+        }
+    }
+
+    @Test
+    void getMyCertificates() {
+        X509Certificate certificate = mock(X509Certificate.class);
+        KeyStore keyStore = mock(KeyStore.class);
+
+        try (MockedStatic<KeyStoreUtils> mockedKeyStoreUtils = mockStatic(KeyStoreUtils.class)) {
+            mockedKeyStoreUtils.when(() -> KeyStoreUtils.createKeyStore(eq("Windows-MY"), isNull())).thenReturn(keyStore);
+            mockedKeyStoreUtils.when(() -> KeyStoreUtils.getCertificates(keyStore)).thenReturn(Collections.singletonList(certificate));
+
+            assertThat(WindowsCertificateUtils.getInstance().getMyCertificates()).containsExactly(certificate);
+
+            ArgumentCaptor<String> keyStoreTypeCaptor = ArgumentCaptor.forClass(String.class);
+            mockedKeyStoreUtils.verify(() -> KeyStoreUtils.createKeyStore(keyStoreTypeCaptor.capture(), isNull()), times(3));
+            assertThat(keyStoreTypeCaptor.getAllValues()).containsExactlyInAnyOrder("Windows-MY", "Windows-MY-CURRENTUSER", "Windows-MY-LOCALMACHINE");
+        }
+    }
+
+    @Test
+    void getRootAndMyCertificatesReturnEmptyListWhenNoKeyStoreIsAvailable() {
+        try (MockedStatic<KeyStoreUtils> mockedKeyStoreUtils = mockStatic(KeyStoreUtils.class)) {
+            mockedKeyStoreUtils.when(() -> KeyStoreUtils.createKeyStore(any(String.class), any()))
+                    .thenThrow(new IllegalStateException("Unavailable"));
+
+            assertThat(WindowsCertificateUtils.getInstance().getRootCertificates()).isEmpty();
+            assertThat(WindowsCertificateUtils.getInstance().getMyCertificates()).isEmpty();
+        }
     }
 
     /**

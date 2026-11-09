@@ -15,11 +15,14 @@
  */
 package nl.altindag.desidero;
 
+import nl.altindag.laleler.CollectorsUtils;
 import nl.altindag.sude.Logger;
 import nl.altindag.sude.LoggerFactory;
 
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -34,15 +37,36 @@ public final class WindowsCertificateUtils extends OSCertificateUtils {
 
     private static final Logger LOGGER  = LoggerFactory.getLogger(WindowsCertificateUtils.class);
     private static WindowsCertificateUtils INSTANCE;
+    private static final List<String> WINDOWS_ROOT_KEYSTORE_TYPES = Arrays.asList("Windows-ROOT", "Windows-ROOT-LOCALMACHINE", "Windows-ROOT-CURRENTUSER");
+    private static final List<String> WINDOWS_MY_KEYSTORE_TYPES = Arrays.asList("Windows-MY", "Windows-MY-CURRENTUSER", "Windows-MY-LOCALMACHINE");
 
     private WindowsCertificateUtils() {}
 
     @Override
     public List<KeyStore> getTrustStores() {
-        return Stream.of("Windows-ROOT", "Windows-ROOT-LOCALMACHINE", "Windows-ROOT-CURRENTUSER", "Windows-MY", "Windows-MY-CURRENTUSER", "Windows-MY-LOCALMACHINE")
+        return Stream.concat(WINDOWS_ROOT_KEYSTORE_TYPES.stream(), WINDOWS_MY_KEYSTORE_TYPES.stream())
+                .collect(CollectorsUtils.toListAndThen(this::getTrustStores));
+    }
+
+    private List<KeyStore> getTrustStores(List<String> keyStoreTypes) {
+        return keyStoreTypes.stream()
                 .map(keystoreType -> createKeyStoreIfAvailable(keystoreType, null))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .collect(toUnmodifiableList());
+    }
+
+    public List<X509Certificate> getRootCertificates() {
+        return getTrustStores(WINDOWS_ROOT_KEYSTORE_TYPES).stream()
+                .map(KeyStoreUtils::getCertificates)
+                .flatMap(Collection::stream)
+                .collect(toUnmodifiableList());
+    }
+
+    public List<X509Certificate> getMyCertificates() {
+        return getTrustStores(WINDOWS_MY_KEYSTORE_TYPES).stream()
+                .map(KeyStoreUtils::getCertificates)
+                .flatMap(Collection::stream)
                 .collect(toUnmodifiableList());
     }
 
@@ -60,13 +84,6 @@ public final class WindowsCertificateUtils extends OSCertificateUtils {
         }
     }
 
-    public static WindowsCertificateUtils getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new WindowsCertificateUtils();
-        }
-        return INSTANCE;
-    }
-
     private static boolean isJnaAvailable() {
         try {
             Class.forName("com.sun.jna.platform.win32.Crypt32", false, WindowsCertificateUtils.class.getClassLoader());
@@ -74,6 +91,13 @@ public final class WindowsCertificateUtils extends OSCertificateUtils {
         } catch (ClassNotFoundException | LinkageError e) {
             return false;
         }
+    }
+
+    public static WindowsCertificateUtils getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new WindowsCertificateUtils();
+        }
+        return INSTANCE;
     }
 
 }

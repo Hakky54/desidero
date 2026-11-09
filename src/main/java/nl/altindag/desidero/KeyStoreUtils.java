@@ -16,6 +16,7 @@
 package nl.altindag.desidero;
 
 import nl.altindag.desidero.exception.GenericKeyStoreException;
+import nl.altindag.laleler.CollectorsUtils;
 
 import java.io.IOException;
 import java.security.KeyStore;
@@ -23,10 +24,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static nl.altindag.laleler.ValidationUtils.requireNotEmpty;
 
@@ -107,6 +111,31 @@ final class KeyStoreUtils {
                 }
             }
             return materialCounter;
+        } catch (KeyStoreException e) {
+            throw new GenericKeyStoreException(e);
+        }
+    }
+
+    public static List<X509Certificate> getCertificates(KeyStore keyStore) {
+        return getAliasToCertificate(keyStore).values().stream()
+                .collect(CollectorsUtils.toUnmodifiableList());
+    }
+
+    private static Map<String, X509Certificate> getAliasToCertificate(KeyStore keyStore) {
+        try {
+            Map<String, X509Certificate> aliasToCertificate = new HashMap<>();
+
+            List<String> aliases = getAliases(keyStore);
+            for (String alias : aliases) {
+                if (keyStore.isCertificateEntry(alias)) {
+                    Certificate certificate = keyStore.getCertificate(alias);
+                    if (certificate instanceof X509Certificate) {
+                        aliasToCertificate.put(alias, (X509Certificate) certificate);
+                    }
+                }
+            }
+
+            return Collections.unmodifiableMap(aliasToCertificate);
         } catch (KeyStoreException e) {
             throw new GenericKeyStoreException(e);
         }

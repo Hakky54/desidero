@@ -41,6 +41,7 @@ Desidero is a library for handling OS Certificates. Supported operating systems 
 Desidero project is originated from internal utilities of [Ayza](https://github.com/hakky54/ayza) project. It is extracted to a separate project to be used by other projects as well.
 
 # Usage
+## Basic usage
 ```java
 import nl.altindag.desidero.OperatingSystem;
 
@@ -54,6 +55,37 @@ public class App {
     }
     
 }
+```
+
+## Extract Windows intermediate certificates
+```java
+import java.security.cert.X509Certificate;
+import java.util.List;
+
+public class App {
+
+    public static void main(String[] args) {
+        WindowsCertificateUtils certificateUtils = WindowsCertificateUtils.getInstance();
+        List<X509Certificate> intermediateCertificates = certificateUtils.getIntermediateCertificates();
+        List<X509Certificate> myCertificates = certificateUtils.getMyCertificates();
+        List<X509Certificate> rootCertificates = certificateUtils.getRootCertificates();
+    }
+    
+}
+```
+
+For extracting the intermediate certificates from Windows CA Store you need to include the following additional dependencies listed below in your project. The Root and My certificates can be extracted without additional dependencies.
+```xml
+<dependency>
+    <groupId>net.java.dev.jna</groupId>
+    <artifactId>jna</artifactId>
+    <version>${version.jna}</version>
+</dependency>
+<dependency>
+    <groupId>net.java.dev.jna</groupId>
+    <artifactId>jna-platform</artifactId>
+    <version>${version.jna}</version>
+</dependency>
 ```
 
 ## Support

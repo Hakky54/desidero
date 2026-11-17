@@ -71,25 +71,11 @@ public final class WindowsCertificateUtils extends OSCertificateUtils {
     }
 
     public List<X509Certificate> getIntermediateCertificates() {
-        if (!isJnaAvailable()) {
-            LOGGER.debug("JNA is not on the classpath, skipping getting Windows intermediate CA certificates");
-            return Collections.emptyList();
-        }
-
         try {
             return WindowsCAReader.loadCertificates();
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                    "Failed to load Windows intermediate CA certificates", e);
-        }
-    }
-
-    private static boolean isJnaAvailable() {
-        try {
-            Class.forName("com.sun.jna.platform.win32.Crypt32", false, WindowsCertificateUtils.class.getClassLoader());
-            return true;
-        } catch (ClassNotFoundException | LinkageError e) {
-            return false;
+        } catch (LinkageError e) {
+            LOGGER.debug("JNA is not on the classpath, skipping getting Windows intermediate CA certificates");
+            return Collections.emptyList();
         }
     }
 

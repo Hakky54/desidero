@@ -16,6 +16,7 @@
 package nl.altindag.desidero;
 
 
+import nl.altindag.log.LogCaptor;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
@@ -26,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -114,17 +114,11 @@ class WindowsCertificateUtilsShould {
 
     @Test
     void getIntermediateCertificatesPropagatesReaderFailure() {
-        try (MockedStatic<WindowsCAReader> mockedReader = mockStatic(WindowsCAReader.class)) {
-
-            mockedReader.when(WindowsCAReader::loadCertificates)
-                    .thenThrow(new IllegalStateException("Native store error"));
-
-            assertThatThrownBy(() ->
-                    WindowsCertificateUtils.getInstance()
-                            .getIntermediateCertificates())
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessage("Failed to load Windows intermediate CA certificates")
-                    .hasCauseInstanceOf(IllegalStateException.class);
+        try (MockedStatic<WindowsCAReader> mockedReader = mockStatic(WindowsCAReader.class);
+             LogCaptor logCaptor = LogCaptor.forClass(WindowsCertificateUtils.class)) {
+            mockedReader.when(WindowsCAReader::loadCertificates).thenThrow(new NoClassDefFoundError("Native store error"));
+            assertThat(WindowsCertificateUtils.getInstance().getIntermediateCertificates()).isEmpty();
+            assertThat(logCaptor.getDebugLogs()).contains("JNA is not on the classpath, skipping getting Windows intermediate CA certificates");
         }
     }
 

@@ -17,12 +17,12 @@
 <dependency>
     <groupId>io.github.hakky54</groupId>
     <artifactId>desidero</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 ### Install with Gradle
 ```groovy
-implementation 'io.github.hakky54:desidero:1.0.2'
+implementation 'io.github.hakky54:desidero:1.0.3'
 ```
 
 ## Table of contents
